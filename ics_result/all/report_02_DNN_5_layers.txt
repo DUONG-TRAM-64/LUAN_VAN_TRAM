@@ -1,0 +1,24 @@
+TÓM TẮT KẾT QUẢ - DNN
+==================================================
+Tên mô hình: DNN
+Số layer: 5
+Số mẫu train: 125,884
+Số mẫu test: 7,850
+Số epoch đã train: 100
+Best validation accuracy: 0.9629
+Test accuracy cuối cùng: 0.9806
+Số lượng tham số: 12,966
+Thời gian huấn luyện: 149.32 giây
+Tổng thời gian suy luận: 0.92 giây
+Suy luận trung bình mỗi mẫu: 0.1176 ms
+
+- Tổng kết tài nguyên:
+- Tổng thời gian chạy: 151.48 giây
+- RAM tăng: 115.83 MB
+- GPU RAM đã dùng thêm: 0.00 MB
+- Mức sử dụng GPU trung bình: 11.71 %
+- Mức sử dụng bộ nhớ GPU tối đa: 3.00 %
+- Nhiệt độ GPU trung bình: 42.00 °C
+- Công suất tiêu thụ trung bình: 35.34 W
+- Mức sử dụng CPU trung bình: 38.70 %
+- Mức sử dụng RAM trung bình: 9.98 %

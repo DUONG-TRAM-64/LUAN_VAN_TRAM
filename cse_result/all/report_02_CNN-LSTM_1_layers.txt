@@ -1,0 +1,24 @@
+TÓM TẮT KẾT QUẢ - CNN-LSTM
+==================================================
+Tên mô hình: CNN-LSTM
+Số layer: 1
+Số mẫu train: 629,839
+Số mẫu test: 138,329
+Số epoch đã train: 100
+Best validation accuracy: 0.9965
+Test accuracy cuối cùng: 0.9964
+Số lượng tham số: 335,526
+Thời gian huấn luyện: 1228.44 giây
+Tổng thời gian suy luận: 11.09 giây
+Suy luận trung bình mỗi mẫu: 0.0802 ms
+
+- Tổng kết tài nguyên:
+- Tổng thời gian chạy: 1255.70 giây
+- RAM tăng: 447.56 MB
+- GPU RAM đã dùng thêm: 24.00 MB
+- Mức sử dụng GPU trung bình: 56.06 %
+- Mức sử dụng bộ nhớ GPU tối đa: 19.00 %
+- Nhiệt độ GPU trung bình: 64.12 °C
+- Công suất tiêu thụ trung bình: 100.13 W
+- Mức sử dụng CPU trung bình: 35.11 %
+- Mức sử dụng RAM trung bình: 17.81 %

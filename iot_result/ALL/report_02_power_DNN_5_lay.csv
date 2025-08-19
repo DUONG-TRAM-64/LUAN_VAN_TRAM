@@ -1,0 +1,2 @@
+Train_Time_s,Inference_Time_s,Best_Val_Accuracy,Test_Accuracy,Avg_GPU_Util_%,Max_GPU_Mem_Util_%,Avg_GPU_Temp_C,Avg_Power_Draw_W,Avg_CPU_Util_%,Avg_Memory_CPU_%
+415.98,9.07,0.8446,0.8399,13.65,0.0,38.39,35.35,43.56,15.03

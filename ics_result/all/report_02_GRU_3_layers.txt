@@ -1,0 +1,24 @@
+TÓM TẮT KẾT QUẢ - GRU
+==================================================
+Tên mô hình: GRU
+Số layer: 3
+Số mẫu train: 125,884
+Số mẫu test: 7,850
+Số epoch đã train: 100
+Best validation accuracy: 0.9652
+Test accuracy cuối cùng: 0.9836
+Số lượng tham số: 113,606
+Thời gian huấn luyện: 592.27 giây
+Tổng thời gian suy luận: 1.32 giây
+Suy luận trung bình mỗi mẫu: 0.1678 ms
+
+- Tổng kết tài nguyên:
+- Tổng thời gian chạy: 594.83 giây
+- RAM tăng: 41.95 MB
+- GPU RAM đã dùng thêm: 0.00 MB
+- Mức sử dụng GPU trung bình: 57.18 %
+- Mức sử dụng bộ nhớ GPU tối đa: 7.00 %
+- Nhiệt độ GPU trung bình: 49.23 °C
+- Công suất tiêu thụ trung bình: 64.74 W
+- Mức sử dụng CPU trung bình: 31.14 %
+- Mức sử dụng RAM trung bình: 8.44 %

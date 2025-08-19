@@ -1,0 +1,24 @@
+TÓM TẮT KẾT QUẢ - CNN
+==================================================
+Tên mô hình: CNN
+Số layer: 3
+Số mẫu train: 717,143
+Số mẫu test: 168,521
+Số epoch đã train: 100
+Best validation accuracy: 0.9385
+Test accuracy cuối cùng: 0.9462
+Số lượng tham số: 32,647
+Thời gian huấn luyện: 553.17 giây
+Tổng thời gian suy luận: 9.09 giây
+Suy luận trung bình mỗi mẫu: 0.0539 ms
+
+- Tổng kết tài nguyên:
+- Tổng thời gian chạy: 574.29 giây
+- RAM tăng: 416.45 MB
+- GPU RAM đã dùng thêm: 0.00 MB
+- Mức sử dụng GPU trung bình: 38.68 %
+- Mức sử dụng bộ nhớ GPU tối đa: 13.00 %
+- Nhiệt độ GPU trung bình: 49.82 °C
+- Công suất tiêu thụ trung bình: 64.66 W
+- Mức sử dụng CPU trung bình: 33.32 %
+- Mức sử dụng RAM trung bình: 11.34 %

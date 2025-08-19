@@ -1,0 +1,24 @@
+TÓM TẮT KẾT QUẢ - LSTM
+==================================================
+Tên mô hình: LSTM
+Số layer: 4
+Số mẫu train: 125,884
+Số mẫu test: 7,850
+Số epoch đã train: 100
+Best validation accuracy: 0.9627
+Test accuracy cuối cùng: 0.9792
+Số lượng tham số: 137,606
+Thời gian huấn luyện: 681.49 giây
+Tổng thời gian suy luận: 1.74 giây
+Suy luận trung bình mỗi mẫu: 0.2220 ms
+
+- Tổng kết tài nguyên:
+- Tổng thời gian chạy: 684.65 giây
+- RAM tăng: 56.19 MB
+- GPU RAM đã dùng thêm: 0.00 MB
+- Mức sử dụng GPU trung bình: 56.59 %
+- Mức sử dụng bộ nhớ GPU tối đa: 7.00 %
+- Nhiệt độ GPU trung bình: 49.59 °C
+- Công suất tiêu thụ trung bình: 66.79 W
+- Mức sử dụng CPU trung bình: 31.06 %
+- Mức sử dụng RAM trung bình: 7.24 %
