@@ -71,7 +71,7 @@ def preprocess_data(train_df, test_df, model_num):
     y_train_cat = to_categorical(y_train)
     y_val_cat = to_categorical(y_val)
     y_test_cat = to_categorical(y_test)
-    
+    # Reshape cho phu hợp với kiến trúc yêu cầu đa chiều , (CNN) , (Nhom RNN)
     if model_num in [1, 2, 3, 5, 6, 7]:
         X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
         X_val = X_val.reshape(X_val.shape[0], X_val.shape[1], 1)
@@ -91,12 +91,13 @@ def train_model(model, X_train, y_train, X_val, y_val, class_weights):
     print("\n- Bắt đầu quá trình huấn luyện...")
     # Neu dung early stopping : Chỉnh  cho phù hợp ví dụ : patience=15
     callbacks = [
-        EarlyStopping(monitor='val_loss', patience=9990, restore_best_weights=True, verbose=1),
+        EarlyStopping(monitor='val_loss', patience=99999, restore_best_weights=True, verbose=1),
         ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=99999, min_lr=1e-7, verbose=1)
     ]
     start = time.time()
     # Chinh cac SIEU THAM SO truoc khi huan luyen 
-    history = model.fit(X_train, y_train, batch_size=256, epochs=100,
+    history = model.fit(X_train, y_train,
+                        batch_size=256, epochs=100,
                         validation_data=(X_val, y_val), callbacks=callbacks,
                         class_weight=class_weights, verbose=1)
     train_time = time.time() - start
@@ -114,103 +115,41 @@ neuron_per_layer = {
 def model_CNN(n, input_shape, num_classes):
     print(f"\n- Xây dựng mô hình CNN - {n} Conv1D layers")
     model = Sequential()
-
-    # Đảm bảo n nằm trong cấu hình đã định nghĩa
     if n not in neuron_per_layer:
         raise ValueError(f"Số layer n={n} chưa được định nghĩa trong neuron_per_layer. Chọn từ 1 đến 5.")
     layer_list = neuron_per_layer[n]
-    # Thêm Conv1D + Dropout giữa các layer
+    # Thêm Conv1D(basic) + Dropout giữa các layer
     for i, filters in enumerate(layer_list):
         model.add(Conv1D(
             filters, kernel_size=2, activation='relu', padding='same',
             input_shape=input_shape if i == 0 else None,
             name=f'conv1d_{i+1}'
         ))
-            model.add(Dropout(0.2, name=f'dropout_{i+1}'))
+        model.add(Dropout(0.2, name=f'dropout_{i+1}'))
 
     # BatchNormalization trước khi Flatten
     model.add(BatchNormalization(name='batch_norm'))
-
+    # Giam so DIM(3) cua CNN : To + Dense(output)
     model.add(Flatten(name='flatten'))
-    model.add(Dense(num_classes, activation='softmax', name='output'))
-
-    # Biên dịch mô hình
+    model.add(Dense(num_classes, activation='softmax', name='dense_output'))
+    # Compile model
     model.compile(optimizer=Adam(1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
     return model
-
-
-####
-# def model_CNN(n, input_shape, num_classes): 
-#     print(f"\n- Xây dựng mô hình CNN - {n} Conv1D layers")
-#     model = Sequential()
-    
-#     # Đảm bảo n nằm trong cấu hình đã định nghĩa
-#     if n not in neuron_per_layer:
-#         raise ValueError(f"Số layer n={n} chưa được định nghĩa trong neuron_per_layer. Chọn từ 1 đến 5.")
-#     layer_list = neuron_per_layer[n]
-    
-#     # Thêm các lớp Conv1D + Dropout
-#     for i, filters in enumerate(layer_list):
-#         model.add(Conv1D(
-#             filters, kernel_size=2, activation='relu', padding='same',
-#             input_shape=input_shape if i == 0 else None,
-#             name=f'conv1d_{i+1}'
-#         ))
-#         model.add(Dropout(0.2, name=f'dropout_conv{i+1}'))  # dropout sau mỗi conv
-    
-#     # Thêm batch normalization, flatten và output
-#     model.add(BatchNormalization(name='batch_norm'))
-#     model.add(Flatten(name='flatten'))
-#     model.add(Dense(num_classes, activation='softmax', name='output'))
-    
-#     # Biên dịch mô hình với optimizer Adam
-#     model.compile(optimizer=Adam(1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
-#     model.summary()
-#     return model
-
-# ###
-# def model_CNN(n, input_shape, num_classes): 
-#     print(f"\n- Xây dựng mô hình CNN - {n} Conv1D layers")
-#     model = Sequential()
-    
-#     # Đảm bảo n nằm trong cấu hình đã định nghĩa
-#     if n not in neuron_per_layer:
-#         raise ValueError(f"Số layer n={n} chưa được định nghĩa trong layer_list. Chọn từ 1 đến 5.")
-#     layer_list = neuron_per_layer[n]
-    
-#     # Thêm các lớp Conv1D và MaxPooling1D (ngoại trừ lớp cuối cùng không cần maxpooling)
-#     for i, filters in enumerate(layer_list):
-#         model.add(Conv1D(
-#             filters, kernel_size=2, activation='relu', padding='same',
-#             input_shape=input_shape if i == 0 else None,
-#             name=f'conv1d_{i+1}'
-#         ))
-#         if i < len(layer_list) - 1:  # Thêm max pooling giữa các lớp, không thêm ở lớp cuối cùng
-#             model.add(MaxPooling1D(pool_size=2, strides=2, padding='same', name=f'maxpool_{i+1}'))
-    
-#     # Thêm batch normalization, dropout
-#     model.add(BatchNormalization(name='batch_norm'))
-#     model.add(Dropout(0.5, name='dropout'))   
-#     model.add(Flatten(name='flatten'))
-#     model.add(Dense(num_classes, activation='softmax', name='output'))
-    
-#     # Biên dịch mô hình với optimizer Adam
-#     model.compile(optimizer=Adam(1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
-#     model.summary()
-#     return model
 # ---------------------------------------------------------------------------- #
 #                                  MODEL LSTM                                  #
 # ---------------------------------------------------------------------------- #
 def model_LSTM(n, input_shape, num_classes): 
     print(f"\n- Xây dựng mô hình LSTM - {n} LSTM layers")
     model = Sequential()
-   
+    #return_sequences --> TRUE(DIM=3) or FALSE(DIM=2)--> giữ trạng thái cuối cùng của HIDDEN layer cuối cùng (bỏ Timestep Giữ :(Batchzie, Hidden_last))
+    #return_sequences=False --> là DIM(2) nên không cần Flatten như CNN vì nhóm RNN có cơ chế như vậy
     if n not in neuron_per_layer:
         raise ValueError(f"Số layer n={n} chưa được định nghĩa trong layer_list. Chọn từ 1 đến 5.")
     layer_list = neuron_per_layer[n]
     
     for i, units in enumerate(layer_list):
+        # Thêm LSTM(basic) + Dropout giữa các layer
         if i == 0:
             model.add(LSTM(units, input_shape=input_shape, return_sequences=n > 1, name=f'lstm_{i+1}'))
         else:
@@ -219,7 +158,7 @@ def model_LSTM(n, input_shape, num_classes):
     
     model.add(BatchNormalization(name='batch_normalization'))
     model.add(Dense(num_classes, activation='softmax', name='dense_output'))
-    
+    # Compile model
     model.compile(optimizer=Adam(learning_rate=1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
     return model
@@ -230,12 +169,11 @@ def model_LSTM(n, input_shape, num_classes):
 def model_GRU(n, input_shape, num_classes): 
     print(f"\n- Xây dựng mô hình GRU - {n} GRU layers")
     model = Sequential()
-   
     if n not in neuron_per_layer:
         raise ValueError(f"Số layer n={n} chưa được định nghĩa trong layer_list. Chọn từ 1 đến 5.")
     layer_list = neuron_per_layer[n]
-
     for i, units in enumerate(layer_list):
+        # Thêm GRU(basic) + Dropout giữa các layer
         if i == 0:
             model.add(GRU(units, input_shape=input_shape, return_sequences=n > 1, name=f'gru_{i+1}'))
         else:
@@ -245,32 +183,32 @@ def model_GRU(n, input_shape, num_classes):
     
     model.add(BatchNormalization(name='batch_normalization'))
     model.add(Dense(num_classes, activation='softmax', name='dense_output'))
-    
+    # Compile model
     model.compile(optimizer=Adam(learning_rate=1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
     return model
 
 # ---------------------------------------------------------------------------- #
-#                                   MODEL DNN                                  #
+#                                   MODEL MLP                                  #
 # ---------------------------------------------------------------------------- #
-def model_DNN(n, input_shape, num_classes): 
-    print(f"\n- Xây dựng mô hình DNN - {n} Dense layers")
+def model_MLP(n, input_shape, num_classes): 
+    print(f"\n- Xây dựng mô hình MLP - {n} Dense layers")
     model = Sequential()
-   
     if n not in neuron_per_layer:
         raise ValueError(f"Số layer n={n} chưa được định nghĩa trong layer_list. Chọn từ 1 đến 5.")
 
     layer_list = neuron_per_layer[n]
     for i, units in enumerate(layer_list):
+        # Thêm Dense + Dropout giữa các layer
         if i == 0:
-            model.add(Dense(units, activation='relu', input_shape=input_shape, name=f'dense_DNN_{i+1}'))
+            model.add(Dense(units, activation='relu', input_shape=input_shape, name=f'dense_MLP_{i+1}'))
         else:
             model.add(Dense(units, activation='relu', name=f'dense_{i+1}'))
-       
-        model.add(Dropout(0.3, name=f'dropout_{i+1}'))
+        model.add(Dropout(0.2, name=f'dropout_{i+1}'))
         
     model.add(BatchNormalization(name='batch_normalization'))
-    model.add(Dense(num_classes, activation='softmax', name='output'))
+    model.add(Dense(num_classes, activation='softmax', name='dense_output'))
+    # Compile model
     model.compile(optimizer=Adam(learning_rate=1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
     return model
@@ -282,26 +220,21 @@ def model_CNN_LSTM(n, input_shape, num_classes):
     print(f"\n- Xây dựng mô hình CNN-LSTM - {n} LSTM layers")
     model = Sequential()
     
-    # Fixed CNN layers
+    #  CNN layers trich xuat dac trung 
     model.add(Conv1D(32, kernel_size=2, activation='relu', input_shape=input_shape, name='conv1d_1'))
-    model.add(MaxPooling1D(pool_size=2, name='maxpool_1'))
-    
     model.add(Conv1D(64, kernel_size=2, activation='relu', name='conv1d_2'))
-    model.add(MaxPooling1D(pool_size=2, name='maxpool_2'))
-    
+
     if n not in neuron_per_layer:
         raise ValueError(f"Số layer n={n} chưa được định nghĩa trong layer_list. Chọn từ 1 đến 5.")
     layer_list = neuron_per_layer[n]
     
-    # LSTM layers
+    # LSTM layers #return_sequences --> TRUE or FALSE
     for i, units in enumerate(layer_list):
         model.add(LSTM(units, return_sequences=i < len(layer_list) - 1, name=f'lstm_{i+1}'))
-        model.add(Dropout(0.1, name=f'dropout_{i+1}'))
+        model.add(Dropout(0.2, name=f'dropout_{i+1}'))
     
-    # Final layers
     model.add(BatchNormalization(name='batch_normalization'))
     model.add(Dense(num_classes, activation='softmax', name='dense_output'))
-    
     # Compile model
     model.compile(optimizer=RMSprop(learning_rate=1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
@@ -314,12 +247,9 @@ def model_CNN_GRU(n, input_shape, num_classes):
     print(f"\n- Xây dựng mô hình CNN-GRU - {n} GRU layers")
     model = Sequential()
     
-    # Fixed CNN layers
+    # Fixed CNN layers trich xuat DT
     model.add(Conv1D(32, kernel_size=2, activation='relu', input_shape=input_shape, name='conv1d_1'))
-    model.add(MaxPooling1D(pool_size=2, name='maxpool_1'))
-    
     model.add(Conv1D(64, kernel_size=2, activation='relu', name='conv1d_2'))
-    model.add(MaxPooling1D(pool_size=2, name='maxpool_2'))
 
     
     if n not in neuron_per_layer:
@@ -329,94 +259,45 @@ def model_CNN_GRU(n, input_shape, num_classes):
     # GRU layers
     for i, units in enumerate(layer_list):
         model.add(GRU(units, return_sequences=i < len(layer_list) - 1, name=f'gru_{i+1}'))
-        model.add(Dropout(0.1, name=f'dropout_{i+1}'))
+        model.add(Dropout(0.2, name=f'dropout_{i+1}'))
     
-    # Final layers
     model.add(BatchNormalization(name='batch_normalization'))
     model.add(Dense(num_classes, activation='softmax', name='dense_output'))
-    
     # Compile model
     model.compile(optimizer=RMSprop(learning_rate=1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
     return model
 
-# ---------------------------------------------------------------------------- #
-#                                   MODEL CNN-DNN                              #
-# ---------------------------------------------------------------------------- #
-# def model_CNN_DNN(n, input_shape, num_classes): 
-#     print(f"\n- Xây dựng mô hình CNN-DNN - {n} Dense layers")
-#     model = Sequential()
-    
-#     # Fixed CNN layers
-#     model.add(Conv1D(32, kernel_size=2, activation='relu', input_shape=input_shape, name='conv1d_1'))
-#     model.add(MaxPooling1D(pool_size=2, name='maxpool_1'))
-    
-#     model.add(Conv1D(64, kernel_size=2, activation='relu', name='conv1d_2'))
-#     model.add(MaxPooling1D(pool_size=2, name='maxpool_2'))
-    
-
-#     model.add(Flatten(name='flatten'))
-    
-#     if n not in neuron_per_layer:
-#         raise ValueError(f"Số layer n={n} chưa được định nghĩa trong layer_list. Chọn từ 1 đến 5.")
-#     layer_list = neuron_per_layer[n]
-    
-#     # Dense layers
-#     for i, units in enumerate(layer_list):
-#         model.add(Dense(units, activation='relu', name=f'dense_{i+1}'))
-#         model.add(Dropout(0.2, name=f'dropout_{i+1}'))
-    
-#     model.add(Dense(num_classes, activation='softmax', name='dense_output'))
-    
-#     # Compile model
-#     model.compile(optimizer=Adam(learning_rate=1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
-#     model.summary()
-#     return model
-
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv1D, Flatten, Dense, Dropout, BatchNormalization
-from tensorflow.keras.optimizers import Adam
-
-def model_CNN_DNN(n, input_shape, num_classes): 
-    print(f"\n- Xây dựng mô hình CNN-DNN - {n} Dense layers")
+def model_CNN_MLP(n, input_shape, num_classes): 
+    print(f"\n- Xây dựng mô hình CNN-MLP - {n} Dense layers")
     model = Sequential()
-    
-    # CNN layers (không dùng MaxPooling, thêm Dropout sau mỗi Conv1D)
+    # CNN layers 
     model.add(Conv1D(32, kernel_size=2, activation='relu', input_shape=input_shape, name='conv1d_1'))
-    model.add(Dropout(0.2, name='dropout_conv1'))
-    
     model.add(Conv1D(64, kernel_size=2, activation='relu', name='conv1d_2'))
-    model.add(Dropout(0.2, name='dropout_conv2'))
-    
+    # GIAM so chieu cua CNN dim(3) (gom thanh 1 vecto + batchsize)=dim(2) --> phu hop voi dense
     model.add(Flatten(name='flatten'))
     
     if n not in neuron_per_layer:
         raise ValueError(f"Số layer n={n} chưa được định nghĩa trong neuron_per_layer. Chọn từ 1 đến 5.")
     layer_list = neuron_per_layer[n]
     
-    # Dense layers (mỗi Dense có Dropout đi kèm)
+    # Dense layers 
     for i, units in enumerate(layer_list):
         model.add(Dense(units, activation='relu', name=f'dense_{i+1}'))
         model.add(Dropout(0.2, name=f'dropout_dense_{i+1}'))
     
-    # Final layers
     model.add(BatchNormalization(name='batch_normalization'))
     model.add(Dense(num_classes, activation='softmax', name='dense_output'))
-    
     # Compile model
-    model.compile(optimizer=Adam(learning_rate=1e-3), 
-                  loss='categorical_crossentropy', 
-                  metrics=['accuracy'])
-    
+    model.compile(optimizer=Adam(learning_rate=1e-3), loss='categorical_crossentropy',metrics=['accuracy'])
     model.summary()
     return model
-
 # # ---------------------------------------------------------------------------- #
 #                                   MODEL NAMES                                 #
 # ---------------------------------------------------------------------------- #
 def get_model_name(num):
     model_names = {
-        1: "CNN", 2: "LSTM", 3: "GRU", 4: "DNN", 5: "CNN-LSTM", 6: "CNN-GRU", 7: "CNN-DNN", 8: "MLP", 9: "DBN"
+        1: "CNN", 2: "LSTM", 3: "GRU", 4: "MLP", 5: "CNN-LSTM",  7: "CNN-MLP" 
     }
     return model_names.get(num, "Không tìm thấy mô hình tương ứng")
 
@@ -428,17 +309,14 @@ def build_model(n, model_num, input_shape, num_classes):
     elif model_num == 3:
         return model_GRU(n, input_shape, num_classes)
     elif model_num == 4:
-        return model_DNN(n, input_shape, num_classes)
+        return model_MLP(n, input_shape, num_classes)
     elif model_num == 5:
         return model_CNN_LSTM(n, input_shape, num_classes)
     elif model_num == 6:
-        return model_CNN_GRU(n, input_shape, num_classes)
-    elif model_num == 7:
-        return model_CNN_DNN(n, input_shape, num_classes)
+        return model_CNN_MLP(n, input_shape, num_classes)
     else:
-        raise ValueError("model_num không hợp lệ. Vui lòng chọn từ 1 đến 9.")
+        raise ValueError("model_num không hợp lệ. Vui lòng chọn từ 1 đến 6.")
     
-
 # ---------------------------------------------------------------------------- #
 #                                Evalute on TEST                               #
 # ---------------------------------------------------------------------------- #
@@ -446,7 +324,9 @@ def evaluate_model(model, X_test, y_test_cat, y_true, label_names, output_dir, n
     print("\n- Đánh giá mô hình...")   
     # Evaluate model
     model_name = get_model_name(model_num)
+
     test_loss, test_accuracy = model.evaluate(X_test, y_test_cat, verbose=0)
+    
     start = time.time()
     y_pred = model.predict(X_test, verbose=0)
     infer_time = time.time() - start
@@ -622,9 +502,9 @@ def end_monitor(gpu_process, ram_before, gpu_mem_before, start_time, gpu_log_fd,
     if gpu_process:
         gpu_process.terminate()
         try:
-            gpu_process.wait(timeout=5)
+            gpu_process.wait(timeout=2)
         except subprocess.TimeoutExpired:
-            print("Cảnh báo: Tiến trình nvidia-smi không dừng trong 5 giây, đang kill.")
+            print("Cảnh báo: Tiến trình nvidia-smi không dừng trong 2 giây, đang kill.")
             gpu_process.kill()
         if gpu_log_fd:
             gpu_log_fd.close()
@@ -821,7 +701,7 @@ def main():
 
     print(f"- Thư mục output mới đã được tạo: {output_dir}")
     # train_df, test_df = load_data()  # Tải dữ liệu một lần
-   # 1: "CNN", 2: "LSTM", 3: "GRU", 4: "DNN", 5: "CNN-LSTM", 6: "CNN-GRU", 7: "CNN-DNN",    bỏ 8: "MLP", 9: "DBN"
+   # 1: "CNN", 2: "LSTM", 3: "GRU", 4: "MLP", 5: "CNN-LSTM", 6: "CNN-GRU", 7: "CNN-MLP",    bỏ 8: "MLP", 9: "DBN"
     model_nums = [1 ] 
     # model_nums = [1,4,5,7,2,3]
     # model_nums = [1,4,5,7]
